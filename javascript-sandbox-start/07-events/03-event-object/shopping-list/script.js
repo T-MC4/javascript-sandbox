@@ -1,3 +1,11 @@
+const logo = document.querySelector('img');
+
+logo.addEventListener('click', (e) => console.log(e.screenX));
+
+function test() {
+    console.log('test');
+}
+
 /*
 - `target` - The element that triggered the event
 - `currentTarget` - The element that the event listener is attached to (These are the same in this case
