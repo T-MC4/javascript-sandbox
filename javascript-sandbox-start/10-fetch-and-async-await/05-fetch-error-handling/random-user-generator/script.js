@@ -1,23 +1,43 @@
 function fetchUser() {
-  showSpinner();
-  fetch('https://randomuser.me/api')
-    .then((res) => res.json())
-    .then((data) => {
-      hideSpinner();
-      displayUser(data.results[0]);
-    });
+    showSpinner();
+    fetch('https://randomuser.me/api')
+        .then((res) => {
+            // if (res.status === 404) {
+            //     throw new Error('Not Found');
+            // } else if (res.status === 500) {
+            //     throw new Error('Server Error');
+            // } else if (res.status !== 200) {
+            //     throw new Error('Request Failed');
+            // }
+
+            if (!res.ok) {
+                throw new Error('Request Failed');
+            }
+
+            return res.json();
+        })
+        .then((data) => {
+            hideSpinner();
+            displayUser(data.results[0]);
+        })
+        .catch((err) => {
+            hideSpinner();
+            document.querySelector('#user').innerHTML = `
+            <p class="text-xl text-center text-red-400 mb-5">${err}</p>`;
+            console.log(err);
+        });
 }
 
 function displayUser(user) {
-  const userDisplay = document.querySelector('#user');
+    const userDisplay = document.querySelector('#user');
 
-  if (user.gender === 'female') {
-    document.body.style.backgroundColor = 'rebeccapurple';
-  } else {
-    document.body.style.backgroundColor = 'steelblue';
-  }
+    if (user.gender === 'female') {
+        document.body.style.backgroundColor = 'rebeccapurple';
+    } else {
+        document.body.style.backgroundColor = 'steelblue';
+    }
 
-  userDisplay.innerHTML = `
+    userDisplay.innerHTML = `
   <div class="flex justify-between">
   <div class="flex">
     <img
@@ -45,11 +65,11 @@ function displayUser(user) {
 }
 
 function showSpinner() {
-  document.querySelector('.spinner').style.display = 'block';
+    document.querySelector('.spinner').style.display = 'block';
 }
 
 function hideSpinner() {
-  document.querySelector('.spinner').style.display = 'none';
+    document.querySelector('.spinner').style.display = 'none';
 }
 
 document.querySelector('#generate').addEventListener('click', fetchUser);

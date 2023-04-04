@@ -1,12 +1,14 @@
 const list = document.querySelector('#todo-list');
 const addBtn = document.querySelector('form button');
 const formInput = document.querySelector('#title');
-const apiURL = 'https://jsonplaceholder.typicode.com/todos' + '?_limit=5';
+const apiURL = 'https://jsonplaceholder.typicode.com/todos';
 
 function getData() {
-    fetch(apiURL)
+    fetch(apiURL + '?_limit=5')
         .then((res) => res.json())
-        .then((data) => displayAPIData(data));
+        .then((data) => {
+            data.forEach((obj) => displayData(obj));
+        });
 }
 
 function onAddData(e) {
@@ -24,46 +26,55 @@ function onAddData(e) {
         },
     })
         .then((res) => res.json())
-        .then((data) => displayData(data.title));
+        .then((data) => displayData(data));
 
     formInput.value = '';
 }
 
 function displayData(obj) {
     const div = document.createElement('div');
-    div.innerHTML = obj;
+    div.innerHTML = obj.title;
+    div.setAttribute('data-id', obj.id);
+    div.classList.add('todo');
+    // console.log(div);
+
+    if (obj.completed) {
+        div.classList.add('done');
+    }
+
     list.appendChild(div);
 }
 
-function displayAPIData(todo) {
-    todo.forEach((obj) => {
-        // console.log(obj);
-        const div = document.createElement('div');
-        div.innerHTML = obj.title;
-        div.setAttribute('data-id', obj.id);
-        console.log(div);
+function onClick(e) {
+    if (e.target.classList.contains('todo')) {
+        e.target.classList.toggle('done');
 
-        if (obj.completed) {
-            div.classList.add('done');
-        }
-
-        list.appendChild(div);
-    });
+        updateData(e.target.dataset.id, e.target.classList.contains('done'));
+    }
 }
 
-function onClick(e) {
-    if (e.target.tagName === 'DIV') {
-        // console.log('tagName is DIV');
-        if (e.target.class === undefined && e.target.id !== 'todo-list') {
-            // console.log('class is Undefined');
-            e.target.classList.toggle('done');
-            // console.log('Class assigned');
+function updateData(id, completed) {
+    console.log(id, completed);
+    // The documentation shows for PUT that /posts/1 is the correct route, which means that we need to add id to the apiURL
+    fetch(apiURL + '/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ completed }),
+        headers: { 'Content-Type': 'application/json' },
+    });
+    // .then((res) => res.json())
+    // .then((data) => console.log(data));
+}
 
-            fetch(apiURL, {
-                method: 'PUT',
-                body: { completed },
-            });
-        }
+function deleteData(e) {
+    if (e.target.classList.contains('todo')) {
+        const id = e.target.dataset.id;
+        console.log(id);
+
+        fetch(apiURL + '/' + id, {
+            method: 'DELETE',
+        })
+            .then((res) => res.json())
+            .then(() => e.target.remove());
     }
 }
 
@@ -72,6 +83,7 @@ function init() {
     document.addEventListener('DOMContentLoaded', getData);
     addBtn.addEventListener('click', onAddData);
     list.addEventListener('click', onClick);
+    list.addEventListener('dblclick', deleteData);
 }
 
 // Function Calls
