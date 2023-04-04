@@ -12,6 +12,15 @@ function getData(link, CALLBACK) {
     }, Math.floor(Math.random() * 3000) + 1000);
 }
 
+// function getMovies(link, cb) {
+//     console.log(link);
+//     cb();
+// }
+
+// function getDirectors(link) {
+//     console.log(link);
+// }
+
 getData('./actors.json', (link) => {
     console.log(link);
     getData('./movies.json', (link) => {

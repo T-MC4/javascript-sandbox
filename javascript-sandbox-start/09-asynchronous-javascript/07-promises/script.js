@@ -4,10 +4,12 @@ const posts = [
 ];
 
 function createPost(post, cb) {
-    setTimeout(() => {
-        posts.push(post);
-        cb();
-    }, 2000);
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            posts.push(post);
+            resolve('Success');
+        }, 2000);
+    });
 }
 
 function getPost() {
@@ -20,4 +22,4 @@ function getPost() {
     }, 1000);
 }
 
-createPost({ title: 'Post Three', body: 'This is post 3' }, getPost);
+createPost({ title: 'Post Three', body: 'This is post 3' }).then(getPost);
