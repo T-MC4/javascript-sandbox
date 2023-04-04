@@ -1,35 +1,37 @@
 const list = document.querySelector('#todo-list');
 const addBtn = document.querySelector('form button');
 const formInput = document.querySelector('#title');
-const apiURL = 'https://jsonplaceholder.typicode.com/todos' + '?_limit=5';
 
-function getData() {
-    fetch(apiURL)
-        .then((res) => res.json())
-        .then((data) => displayAPIData(data));
+function getData(link) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const apiLink = link + '?_limit=5';
+        xhr.open('get', apiLink);
+
+        xhr.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    resolve(JSON.parse(this.responseText));
+                    console.log(JSON.parse(this.responseText));
+                } else {
+                    reject('Failed');
+                }
+            }
+        };
+        setTimeout(() => {
+            xhr.send();
+        }, 0);
+    });
 }
 
 function onAddData(e) {
     e.preventDefault();
     const todo = formInput.value;
-
-    fetch(apiURL, {
-        method: 'POST',
-        body: JSON.stringify({
-            title: todo,
-            completed: false,
-        }),
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-        .then((res) => res.json())
-        .then((data) => displayData(data.title));
-
-    formInput.value = '';
+    displayData(todo);
 }
 
 function displayData(obj) {
+    console.log(obj);
     const div = document.createElement('div');
     div.innerHTML = obj;
     list.appendChild(div);
@@ -37,18 +39,15 @@ function displayData(obj) {
 
 function displayAPIData(todo) {
     todo.forEach((obj) => {
-        // console.log(obj);
         const div = document.createElement('div');
         div.innerHTML = obj.title;
-        div.setAttribute('data-id', obj.id);
-        console.log(div);
-
-        if (obj.completed) {
-            div.classList.add('done');
-        }
-
         list.appendChild(div);
     });
+}
+
+function putData(input) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', link);
 }
 
 function onClick(e) {
@@ -56,25 +55,27 @@ function onClick(e) {
         // console.log('tagName is DIV');
         if (e.target.class === undefined && e.target.id !== 'todo-list') {
             // console.log('class is Undefined');
-            e.target.classList.toggle('done');
+            e.target.className = 'done';
             // console.log('Class assigned');
-
-            fetch(apiURL, {
-                method: 'PUT',
-                body: { completed },
-            });
         }
     }
 }
 
+function showError(err) {
+    console.log(err);
+}
+
 // Event Listeners
 function init() {
-    document.addEventListener('DOMContentLoaded', getData);
     addBtn.addEventListener('click', onAddData);
     list.addEventListener('click', onClick);
 }
 
 // Function Calls
 init();
+
+getData('https://jsonplaceholder.typicode.com/todos')
+    .then(displayAPIData)
+    .catch(showError);
 
 // putData('https://jsonplaceholder.typicode.com/todos');
